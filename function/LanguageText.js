@@ -1,0 +1,36 @@
+const languageText = {
+    en: {
+        backButtonText: 'Back',
+        languageButtonEN: 'English',
+        languageButtonVI: 'Vietnamese',
+        languageLabel: 'Language',
+        soundButtonText: 'Sound',
+        captionGenerator: 'Caption Generator',
+        setting : 'Setting',
+        selectTitle : 'Please select the option',
+        captureButton : 'Capture',
+        repeat: 'Repeat',
+        processing: 'Processing ...',
+        option: 'Select a source',
+        camera: 'Camera',
+        gallery: 'Gallery',
+    },
+    vi: {
+        backButtonText: 'Quay lại',
+        languageButtonEN: 'Tiếng Anh',
+        languageButtonVI: 'Tiếng Việt',
+        languageLabel: 'Ngôn ngữ ',
+        soundButtonText: 'Âm thanh',
+        captionGenerator: 'Tạo Chú Thích',
+        setting : 'Cài Đặt',
+        selectTitle : 'Vui lòng lựa chọn',
+        captureButton : 'Chụp',
+        repeat: 'Đọc lại',
+        processing: 'Đang xử lý ...',
+        option: 'Chọn một nguồn ảnh',
+        camera: 'Camera',
+        gallery: 'Gallery',
+    },
+};
+
+export default languageText;
