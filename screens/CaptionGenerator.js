@@ -22,6 +22,8 @@ import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Tts from 'react-native-tts';
 import RNFS from 'react-native-fs';
 import {uploadImage, translateText} from '../function/api';
+import { useNetInfo } from '../function/NetInfoContext'
+import ModalOffline from "../function/ModalOffline";
 function CaptionGenerator({route}) {
   const [countCaptureButton, setCountCaptureButton] = useState(0);
   const [countBackButton, setCountBackButton] = useState(0);
@@ -33,7 +35,7 @@ function CaptionGenerator({route}) {
   const {hasPermission, requestPermission} = useCameraPermission();
   const [isActive, setIsActive] = useState(true);
   const isFocused = useIsFocused();
-  const device = useCameraDevice('back');
+  const device = useCameraDevice('front');
   // xu li click nut back
   const HandleBackButtonPress = () => {
     countBackButton === 0
@@ -123,6 +125,11 @@ function CaptionGenerator({route}) {
       setShowModal(false); // Đóng modal khi chuyển qua màn hình khác
     });
   }, []);
+  const [modalNetInfo, setModalNetInfo] = useState(false);
+    const {isConnected,showNetInfo,setShowNetInfo} = useNetInfo();
+    const onClose = () => {
+       setShowNetInfo(false);
+    }
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -153,13 +160,16 @@ function CaptionGenerator({route}) {
         transparent={true} // trong suot
         animationType="fade" // kieu xuat hien va bien mat
         onRequestClose={() => setShowModal(false)}>
+        <View style = {styles.center}>
         <View style={styles.modal}>
           <ActivityIndicator size="100" color="#ffffff" />
           <Text style={{color: '#ffffff', marginTop: 10}}>
             {languageText[selectedLanguage].processing}
           </Text>
         </View>
+        </View>
       </Modal>
+      <ModalOffline isVisible={showNetInfo} onClose={onClose} selectedLanguage = {selectedLanguage} languageText = {languageText}/>
     </View>
   );
 }
@@ -196,6 +206,9 @@ const styles = StyleSheet.create({
     fontSize: 40,
     color: 'white',
     fontWeight: 'bold',
+  },
+  center:{
+    flex: 1,
   },
   modal: {
     flex: 1,

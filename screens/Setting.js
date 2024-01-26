@@ -1,6 +1,6 @@
 /* eslint-disable no-dupe-keys */
 /* eslint-disable prettier/prettier */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,9 @@ import {
   AccessibilityInfo,
 } from 'react-native';
 import Tts from 'react-native-tts';
+import { useModalState } from '../function/ModalContext';
+import { useNetInfo } from '../function/NetInfoContext'
+import ModalOffline from "../function/ModalOffline";
 function Option({route}) {
   const {navigation} = route.params.props;
   const {goBack} = navigation;
@@ -59,11 +62,35 @@ function Option({route}) {
     }
     setCountVNButton(prevCount => (prevCount + 1) % 2);
   };
-
   useEffect(() => {
     setSelectedLanguage1(selectedLanguage);
   }, [selectedLanguage]);
+  // modallabel
+  const handleModalLabel = () => {
+    Tts.speak(languageText[selectedLanguage].modalLabel);
+  }
+  const [countOfButton,setCountOfButton] = useState(0);
+  const [countOnButton,setCountOnButton] = useState(0);
+  const {modalType,setModalType} = useModalState();
+  // console.log(modalType);
+  
+  // console.log(isConnected);
+  useEffect(() => {
+    if (!isConnected) setIsDisabled(true);
+    else setIsDisabled(false);
+  },[isConnected])
+  const handleOffButtonPress = () => {
+    
+  }
+  const handleOnButtonPress = () => {
 
+  }
+  const [isDisabled, setIsDisabled] = useState(false);
+  const {isConnected,showNetInfo,setShowNetInfo} = useNetInfo();
+  // console.log('12'+showNetInfo);
+  const onClose = () => {
+    setShowNetInfo(false);
+ }
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -90,7 +117,7 @@ function Option({route}) {
           <Text style={styles.buttonText}>
             {languageText[selectedLanguage].languageButtonEN}
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> 
         <TouchableOpacity
           style={[
             styles.languageButton,
@@ -103,10 +130,40 @@ function Option({route}) {
           </Text>
         </TouchableOpacity>
       </View>
+      <TouchableOpacity onPress={handleModalLabel} activeOpacity={1}> 
+        <Text style={styles.label}>
+          {languageText[selectedLanguage].modalLabel}
+        </Text>
+      </TouchableOpacity>
+      <View style = {styles.modalContainer}>
+        <TouchableOpacity
+        style={[
+          styles.languageButton,
+          modalType === 0 ? styles.selectedLanguage : null
+        ]}
+        onPress={handleOffButtonPress}
+        >
+          <Text style={styles.buttonText}>
+            Offline
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+        style={[
+          styles.languageButton,
+          modalType === 1 ? styles.selectedLanguage : null
+        ]}
+        onPress={handleOnButtonPress}
+        disabled = {isDisabled}
+        >
+          <Text style={styles.buttonText}>
+            Online
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <ModalOffline isVisible={showNetInfo}  onClose={onClose} selectedLanguage = {selectedLanguage} languageText = {languageText}/>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -116,42 +173,57 @@ const styles = StyleSheet.create({
   },
   backButton: {
     height: '15%',
-    width: '140%',
-    backgroundColor: 'black',
+    width: '100%',
+    // backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#1e1e1e',
-
     borderRadius: 10,
     margin: 10,
   },
   buttonText: {
     color: 'white',
-    fontSize: 40,
+    fontSize: 30,
     fontWeight: 'bold',
   },
   label: {
-    fontSize: 50,
-    margin: 10,
+    fontSize: 40,
+    // margin: 10,
     color: 'white',
     fontWeight: 'bold',
-    marginTop: 30,
+    marginTop: 25,
   },
   languageContainer: {
-    flexDirection: 'column',
-    margin: 20,
+    flexDirection: 'row',
+    marginVertical: 30,
+    height: '20%',
+    width: '100%'
   },
   languageButton: {
     backgroundColor: 'grey',
-    width: 360,
+    width: '45%',
     height: 150,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    marginVertical: 20,
-    paddingEnd: 20,
+    marginHorizontal: 10,
+    
   },
-
+  modalContainer: {
+    flexDirection: 'row',
+    marginVertical: 30,
+    height: '30%',
+    width: '100%'
+  },
+  modalButton: {
+    backgroundColor: 'grey',
+    width: '45%',
+    height: 150,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    marginHorizontal: 10,
+  },
   selectedLanguage: {
     backgroundColor: 'blue', // Blue when the button is selected
   },

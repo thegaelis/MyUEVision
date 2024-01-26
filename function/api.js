@@ -1,13 +1,10 @@
 import axios from 'axios';
-
 const API_URL = 'http://127.0.0.1:8000';
-
 // Setting up the instance isn't used in the function below but can be useful in other contexts
 const instance = axios.create({
   baseURL: 'http://127.0.0.1:8000',
   timeout: 10000,
 });
-
 async function translateText(textString) {
   const url = 'https://deep-translate1.p.rapidapi.com/language/translate/v2';
   const options = {
@@ -23,7 +20,6 @@ async function translateText(textString) {
       target: 'vi',
     }),
   };
-
   try {
     const response = await fetch(url, options);
     if (!response.ok) {

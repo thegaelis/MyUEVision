@@ -14,6 +14,11 @@ const languageText = {
         option: 'Select a source',
         camera: 'Camera',
         gallery: 'Gallery',
+        modalLabel: 'Model',
+        online: 'Online',
+        offline: 'Offline',
+        noInternet: 'No Internet Connection',
+        close: 'Close'
     },
     vi: {
         backButtonText: 'Quay lại',
@@ -30,6 +35,11 @@ const languageText = {
         option: 'Chọn một nguồn ảnh',
         camera: 'Camera',
         gallery: 'Gallery',
+        modalLabel: 'Mô Hình',
+        online: 'Online',
+        offline: 'Offline',
+        noInternet: 'Không có kết nối internet',
+        close: 'Đóng'
     },
 };
 
