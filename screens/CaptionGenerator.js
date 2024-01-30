@@ -35,7 +35,7 @@ function CaptionGenerator({route}) {
   const {hasPermission, requestPermission} = useCameraPermission();
   const [isActive, setIsActive] = useState(true);
   const isFocused = useIsFocused();
-  const device = useCameraDevice('front');
+  const device = useCameraDevice('back');
   // xu li click nut back
   const HandleBackButtonPress = () => {
     countBackButton === 0
@@ -66,7 +66,9 @@ function CaptionGenerator({route}) {
     setShowModal(true);
     if (camera.current && isActive) {
       try {
-        const photo = await camera.current.takePhoto();
+        const photo = await camera.current.takePhoto({
+          qualityPrioritization: 'speed'
+        });
         const base64string = await RNFS.readFile(photo.path, 'base64');
         let caption = await uploadImage(base64string); // Ensure this function returns the desired text
         // caption = caption.slice(43, caption.length - 3);
