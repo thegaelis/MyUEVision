@@ -21,6 +21,10 @@ import {detectObjects} from 'react-native-worklets-core';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Tts from 'react-native-tts';
 import RNFS from 'react-native-fs';
+import * as tf from '@tensorflow/tfjs';
+import { fetch, bundleResourceIO } from '@tensorflow/tfjs-react-native';
+import * as blazeface from '@tensorflow-models/blazeface';
+import * as jpeg from 'jpeg-js'
 import {uploadImage, translateText} from '../function/api';
 import { useNetInfo } from '../function/NetInfoContext'
 import ModalOffline from "../function/ModalOffline";
@@ -36,6 +40,8 @@ function CaptionGenerator({route}) {
   const [isActive, setIsActive] = useState(true);
   const isFocused = useIsFocused();
   const device = useCameraDevice('back');
+  const [model, setModel] = useState(null); // Add this line for model state
+
   // xu li click nut back
   const HandleBackButtonPress = () => {
     countBackButton === 0
@@ -69,13 +75,14 @@ function CaptionGenerator({route}) {
         const photo = await camera.current.takePhoto({
           qualityPrioritization: 'speed'
         });
-        const base64string = await RNFS.readFile(photo.path, 'base64');
-        let caption = await uploadImage(base64string); // Ensure this function returns the desired text
+        //API:const base64string = await RNFS.readFile(photo.path, 'base64');
+        //API:let caption = await uploadImage(base64string); // Ensure this function returns the desired text
         // caption = caption.slice(43, caption.length - 3);
-        let captionResult = caption;
+        //API:let captionResult = caption;
         // Only translate if Vietnamese is selected
+        let captionResult = await modelRun(photo.path);
         if (selectedLanguage === 'vi') {
-          captionResult = await translateText(caption); // Ensure this function translates as needed
+          captionResult = await translateText(captionResult); // Ensure this function translates as needed
         }
         // setProcessing(false);
         // Speak out the result
@@ -91,6 +98,51 @@ function CaptionGenerator({route}) {
       }
     }
   };
+   // thay doi trang thai hoac mat focus
+   useEffect(() => {
+    async function loadModel() {
+      try {
+        // Load TensorFlow.js model
+        const modelJson = require('../model/model.json');
+        const modelWeights = require('../model/group1-shard.bin');
+        const model = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
+
+        // Save the model reference to state
+        setModel(model);
+
+        console.log('[+] TensorFlow.js model loaded');
+      } catch (error) {
+        console.error('Error loading TensorFlow.js model:', error);
+      }
+    }
+    loadModel();
+    const sub = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      console.log('remove');
+      sub.remove();
+    };
+  }, []);
+  const modelRun = async (filePath) => {
+    try {
+      // You can directly use the file path for your model
+      // Adjust this based on your specific TensorFlow.js model requirements
+      const prediction = filePath;
+
+      // Process the prediction result
+      const generatedCaption = processPrediction(prediction);
+
+      return { generated_caption: generatedCaption };
+    } catch (error) {
+      console.error('Error during model prediction:', error);
+      return { error: 'Error during model prediction' };
+    }
+  };
+  const processPrediction = (prediction) => {
+    // Modify this function based on your post-processing steps in the Python code
+    // You may need to convert tensor data to JavaScript arrays and perform additional steps
+    // For simplicity, let's assume the prediction is a single value for caption generation
+    return prediction.dataSync()[0].toString();
+  };
   const handleAppStateChange = nextAppState => {
     console.log(nextAppState);
     if (nextAppState !== 'active') {
@@ -99,14 +151,7 @@ function CaptionGenerator({route}) {
       setIsActive(true);
     }
   };
-  // thay doi trang thai hoac mat focus
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', handleAppStateChange);
-    return () => {
-      console.log('remove');
-      sub.remove();
-    };
-  }, []);
+ 
   const checkPermission = async () => {
     const newCameraPermission = await Camera.requestCameraPermission();
   };
@@ -126,7 +171,7 @@ function CaptionGenerator({route}) {
     const unsubscribe = navigation1.addListener('blur', () => {
       setShowModal(false); // Đóng modal khi chuyển qua màn hình khác
     });
-  }, []);
+  }, [ ]);
   const [modalNetInfo, setModalNetInfo] = useState(false);
     const {isConnected,showNetInfo,setShowNetInfo} = useNetInfo();
     const onClose = () => {
@@ -218,6 +263,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-// eslint-disable-next-line prettier/prettier
 });
 export default CaptionGenerator;
